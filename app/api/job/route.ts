@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { getModel, getApiKey } from "@/lib/ai";
+import { getModel, getModelConfig } from "@/lib/ai";
 import { JobDetailsSchema } from "@/lib/schemas";
 import { JOB_ANALYSIS_PROMPT } from "@/lib/prompts";
 import { scrapeJobDescription } from "@/lib/scrape-job";
@@ -8,12 +8,12 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const apiKey = getApiKey(req);
+    const { modelId, apiKey } = getModelConfig(req);
     if (!apiKey) {
       return Response.json(
         {
           error:
-            "No API key configured. Add your Gemini API key in Settings.",
+            "No API key configured. Add your API key in Settings.",
         },
         { status: 401 }
       );
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     }
 
     // Use Gemini to extract structured job details
-    const model = getModel(apiKey);
+    const model = getModel(modelId, apiKey);
     const { object: jobDetails } = await generateObject({
       model,
       schema: JobDetailsSchema,
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         return Response.json(
           {
             error:
-              "No API key configured. Add your Gemini API key in Settings.",
+              "No API key configured. Add your API key in Settings.",
           },
           { status: 401 }
         );

@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { getModel, getApiKey } from "@/lib/ai";
+import { getModel, getModelConfig } from "@/lib/ai";
 import { extractText } from "@/lib/parse-resume";
 import { ResumeDataSchema } from "@/lib/schemas";
 import { RESUME_PARSE_PROMPT } from "@/lib/prompts";
@@ -8,12 +8,12 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
-    const apiKey = getApiKey(req);
+    const { modelId, apiKey } = getModelConfig(req);
     if (!apiKey) {
       return Response.json(
         {
           error:
-            "No API key configured. Add your Gemini API key in Settings or set GOOGLE_GENERATIVE_AI_API_KEY on the server.",
+            "No API key configured. Add your API key in Settings.",
         },
         { status: 401 }
       );
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     // Use Gemini to structure the raw text into our schema
-    const model = getModel(apiKey);
+    const model = getModel(modelId, apiKey);
     const { object: resume } = await generateObject({
       model,
       schema: ResumeDataSchema,
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
         return Response.json(
           {
             error:
-              "No API key configured. Add your Gemini API key in Settings.",
+              "No API key configured. Add your API key in Settings.",
           },
           { status: 401 }
         );

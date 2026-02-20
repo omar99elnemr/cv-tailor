@@ -6,7 +6,7 @@ import { UploadStep } from "@/components/upload-step";
 import { JobStep } from "@/components/job-step";
 import { ResultsStep } from "@/components/results-step";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SettingsDialog, useApiKey } from "@/components/settings-dialog";
+import { SettingsDialog, useModelSettings } from "@/components/settings-dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { FileText } from "lucide-react";
@@ -24,7 +24,7 @@ export default function Home() {
   const [, setRawResumeText] = useState<string>("");
   const [jobDescription, setJobDescription] = useState<string>("");
   const [tailorOptions, setTailorOptions] = useState({ coverLetter: true });
-  const { apiKey, saveKey } = useApiKey();
+  const { settings, saveSettings, currentModel } = useModelSettings();
 
   const handleResumeComplete = (resumeData: ResumeData, rawText: string) => {
     setResume(resumeData);
@@ -64,7 +64,7 @@ export default function Home() {
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <SettingsDialog apiKey={apiKey} onSaveKey={saveKey} />
+              <SettingsDialog settings={settings} onSave={saveSettings} />
               <ThemeToggle />
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function Home() {
             {currentStep === 0 && (
               <UploadStep
                 onComplete={handleResumeComplete}
-                apiKey={apiKey}
+                modelSettings={settings}
               />
             )}
 
@@ -102,7 +102,7 @@ export default function Home() {
               <JobStep
                 onComplete={handleJobComplete}
                 onBack={() => setCurrentStep(0)}
-                apiKey={apiKey}
+                modelSettings={settings}
               />
             )}
 
@@ -111,7 +111,7 @@ export default function Home() {
                 resume={resume}
                 jobDescription={jobDescription}
                 options={tailorOptions}
-                apiKey={apiKey}
+                modelSettings={settings}
                 onStartOver={handleStartOver}
               />
             )}

@@ -16,14 +16,15 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { ModelSettings } from "@/components/settings-dialog";
 
 interface JobStepProps {
   onComplete: (jobText: string, options: { coverLetter: boolean }) => void;
   onBack: () => void;
-  apiKey: string;
+  modelSettings: ModelSettings;
 }
 
-export function JobStep({ onComplete, onBack, apiKey }: JobStepProps) {
+export function JobStep({ onComplete, onBack, modelSettings }: JobStepProps) {
   const [mode, setMode] = useState<"paste" | "url">("paste");
   const [jobText, setJobText] = useState("");
   const [url, setUrl] = useState("");
@@ -45,7 +46,8 @@ export function JobStep({ onComplete, onBack, apiKey }: JobStepProps) {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      if (apiKey) headers["x-gemini-key"] = apiKey;
+      if (modelSettings.modelId) headers["x-model-id"] = modelSettings.modelId;
+      if (modelSettings.apiKey) headers["x-api-key"] = modelSettings.apiKey;
 
       const res = await fetch("/api/job", {
         method: "POST",

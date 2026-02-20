@@ -35,11 +35,13 @@ const PDFDownloadButton = dynamic(
   }
 );
 
+import type { ModelSettings } from "@/components/settings-dialog";
+
 interface ResultsStepProps {
   resume: ResumeData;
   jobDescription: string;
   options: { coverLetter: boolean };
-  apiKey: string;
+  modelSettings: ModelSettings;
   onStartOver: () => void;
 }
 
@@ -47,7 +49,7 @@ export function ResultsStep({
   resume,
   jobDescription,
   options,
-  apiKey,
+  modelSettings,
   onStartOver,
 }: ResultsStepProps) {
   const [loading, setLoading] = useState(true);
@@ -83,7 +85,8 @@ export function ResultsStep({
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      if (apiKey) headers["x-gemini-key"] = apiKey;
+      if (modelSettings.modelId) headers["x-model-id"] = modelSettings.modelId;
+      if (modelSettings.apiKey) headers["x-api-key"] = modelSettings.apiKey;
 
       const res = await fetch("/api/tailor", {
         method: "POST",
@@ -112,7 +115,7 @@ export function ResultsStep({
       clearInterval(interval);
       setLoading(false);
     }
-  }, [resume, jobDescription, options, apiKey]);
+  }, [resume, jobDescription, options, modelSettings]);
 
   useEffect(() => {
     tailorResume();

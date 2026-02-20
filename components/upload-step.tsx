@@ -16,13 +16,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ResumeData } from "@/lib/schemas";
+import type { ModelSettings } from "@/components/settings-dialog";
 
 interface UploadStepProps {
   onComplete: (resume: ResumeData, rawText: string) => void;
-  apiKey: string;
+  modelSettings: ModelSettings;
 }
 
-export function UploadStep({ onComplete, apiKey }: UploadStepProps) {
+export function UploadStep({ onComplete, modelSettings }: UploadStepProps) {
   const [mode, setMode] = useState<"upload" | "paste">("upload");
   const [file, setFile] = useState<File | null>(null);
   const [pastedText, setPastedText] = useState("");
@@ -77,7 +78,8 @@ export function UploadStep({ onComplete, apiKey }: UploadStepProps) {
       }
 
       const headers: Record<string, string> = {};
-      if (apiKey) headers["x-gemini-key"] = apiKey;
+      if (modelSettings.modelId) headers["x-model-id"] = modelSettings.modelId;
+      if (modelSettings.apiKey) headers["x-api-key"] = modelSettings.apiKey;
 
       const res = await fetch("/api/parse", {
         method: "POST",
