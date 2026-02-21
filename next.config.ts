@@ -1,10 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdf-parse", "mammoth"],
-  turbopack: {},
+  serverExternalPackages: ["pdfjs-dist", "mammoth"],
+  turbopack: {
+    resolveAlias: {
+      canvas: { browser: "./empty-module.js" },
+    },
+  },
   webpack: (config) => {
-    // pdf-parse optionally depends on canvas (not available in serverless)
+    // pdfjs-dist optionally depends on canvas (not available in serverless)
     config.resolve.alias = {
       ...config.resolve.alias,
       canvas: false,

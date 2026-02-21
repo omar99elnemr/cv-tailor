@@ -1,30 +1,33 @@
 import mammoth from "mammoth";
 
 /**
- * Extract text content from a PDF buffer.
- * Tries pdf-parse v2 (class API) then v1 (function API).
+ * Extract text content from a PDF buffer using pdfjs-dist directly.
  */
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
+    // Use pdfjs-dist legacy build directly – avoids pdf-parse wrapper issues
+    // with Next.js bundling (worker threads, canvas resolution, etc.)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfModule: any = await import("pdf-parse");
+    const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-    // pdf-parse v1: default export is a function
-    const pdf = pdfModule.default || pdfModule;
-    if (typeof pdf === "function") {
-      const result = await pdf(buffer);
-      return result.text || "";
+    const data = new Uint8Array(buffer);
+    const doc = await pdfjs.getDocument({ data, useSystemFonts: true }).promise;
+
+    const textParts: string[] = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((item: any) => "str" in item)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((item: any) => item.str)
+        .join(" ");
+      textParts.push(pageText);
     }
 
-    // pdf-parse v2: named export PDFParse class
-    if (pdfModule.PDFParse) {
-      const parser = new pdfModule.PDFParse({ data: buffer });
-      const result = await parser.getText();
-      await parser.destroy();
-      return result.text || "";
-    }
-
-    throw new Error("Incompatible pdf-parse version");
+    await doc.destroy();
+    return textParts.join("\n");
   } catch (error) {
     console.error("PDF extraction error:", error);
     throw new Error(
