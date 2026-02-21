@@ -10,7 +10,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
       {/* Header */}
       <div className="text-center">
         <h2 className="text-xl font-bold tracking-tight">{contact.fullName}</h2>
-        <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1 mt-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1 mt-2 text-xs text-muted-foreground">
           {contact.email && <span>{contact.email}</span>}
           {contact.phone && (
             <>
@@ -37,7 +37,9 @@ export function ResumePreview({ data }: { data: ResumeData }) {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                LinkedIn
+                {contact.linkedin.startsWith("http")
+                  ? contact.linkedin.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                  : `linkedin.com/in/${contact.linkedin}`}
               </a>
             </>
           )}
@@ -54,7 +56,26 @@ export function ResumePreview({ data }: { data: ResumeData }) {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                GitHub
+                {contact.github.startsWith("http")
+                  ? contact.github.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                  : `github.com/${contact.github}`}
+              </a>
+            </>
+          )}
+          {contact.website && (
+            <>
+              <span className="text-border">|</span>
+              <a
+                href={
+                  contact.website.startsWith("http")
+                    ? contact.website
+                    : `https://${contact.website}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                {contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
               </a>
             </>
           )}

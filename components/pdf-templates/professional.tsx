@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: "Helvetica-Bold",
     letterSpacing: 0.5,
-    marginBottom: 5,
+    marginBottom: 10,
     color: colors.black,
   },
   contactRow: {
@@ -226,9 +226,12 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
     const url = contact.linkedin.startsWith("http")
       ? contact.linkedin
       : `https://linkedin.com/in/${contact.linkedin}`;
+    const displayText = contact.linkedin.startsWith("http")
+      ? contact.linkedin.replace(/^https?:\/\//, "").replace(/\/$/, "")
+      : `linkedin.com/in/${contact.linkedin}`;
     contactItems.push(
       <Link key="li" style={styles.contactLink} src={url}>
-        LinkedIn
+        {displayText}
       </Link>
     );
   }
@@ -236,9 +239,12 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
     const url = contact.github.startsWith("http")
       ? contact.github
       : `https://github.com/${contact.github}`;
+    const displayText = contact.github.startsWith("http")
+      ? contact.github.replace(/^https?:\/\//, "").replace(/\/$/, "")
+      : `github.com/${contact.github}`;
     contactItems.push(
       <Link key="gh" style={styles.contactLink} src={url}>
-        GitHub
+        {displayText}
       </Link>
     );
   }
@@ -246,9 +252,10 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
     const url = contact.website.startsWith("http")
       ? contact.website
       : `https://${contact.website}`;
+    const displayText = contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
     contactItems.push(
       <Link key="web" style={styles.contactLink} src={url}>
-        Portfolio
+        {displayText}
       </Link>
     );
   }

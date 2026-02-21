@@ -10,6 +10,15 @@ EXTRACTION RULES:
 - If no explicit summary/objective exists, leave it as an empty string
 - Never skip, merge, or fabricate any entries
 
+CONTACT INFORMATION — CRITICAL:
+- Extract ALL contact details: full name, email, phone, location/address, LinkedIn URL, GitHub URL, and personal website/portfolio URL
+- Keep URLs exactly as written in the resume (full URLs, not just usernames)
+- If the resume has a LinkedIn URL like "linkedin.com/in/username", preserve the full URL
+- If the resume has a GitHub URL like "github.com/username", preserve the full URL
+- If the resume has any personal website or portfolio URL, put it in the website field
+- Location/address should be preserved as written (e.g., "New York, NY" or full address)
+- Do NOT skip any contact field that is present in the original resume
+
 Parse everything. Completeness is critical.`;
 
 // ── Job Description Analysis Prompt ──
@@ -50,6 +59,12 @@ export const RESUME_TAILOR_PROMPT = `You are a career strategist helping a real 
 - Work ONLY with what the candidate has actually done. Zero fabrication.
 - You may reword, reframe, and reorder — but the underlying facts must be real.
 - If the candidate lacks a required skill, do NOT invent it. Flag it in missing keywords instead.
+
+### CONTACT INFORMATION — DO NOT MODIFY
+- Copy ALL contact fields exactly as-is from the original resume: fullName, email, phone, location, linkedin, github, website
+- Do NOT drop, rename, or merge any contact fields
+- Do NOT replace actual URLs with generic labels like "Portfolio" or "Personal Website"
+- Keep every URL, address, and phone number exactly as provided
 
 ### PROFESSIONAL SUMMARY (2-3 sentences)
 Write a punchy opening that positions this person for THIS role. Guidelines:

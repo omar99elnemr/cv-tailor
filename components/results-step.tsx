@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ResumePreview } from "@/components/resume-preview";
 import { CoverLetterPreview } from "@/components/cover-letter-preview";
 import { ATSScoreCard } from "@/components/ats-score";
+import { Input } from "@/components/ui/input";
 import {
   Loader2,
   RotateCcw,
@@ -17,6 +18,8 @@ import {
   BarChart3,
   Copy,
   Check,
+  MapPin,
+  Pencil,
 } from "lucide-react";
 import type { ResumeData, ATSScore } from "@/lib/schemas";
 
@@ -59,6 +62,8 @@ export function ResultsStep({
   const [coverLetter, setCoverLetter] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("Analyzing your resume...");
   const [copied, setCopied] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [locationDraft, setLocationDraft] = useState("");
 
   const tailorResume = useCallback(async () => {
     setLoading(true);
@@ -176,6 +181,23 @@ export function ResultsStep({
 
   if (!tailoredResume) return null;
 
+  const handleLocationSave = () => {
+    const trimmed = locationDraft.trim();
+    setTailoredResume({
+      ...tailoredResume,
+      contact: {
+        ...tailoredResume.contact,
+        location: trimmed || undefined,
+      },
+    });
+    setEditingLocation(false);
+  };
+
+  const handleLocationKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleLocationSave();
+    if (e.key === "Escape") setEditingLocation(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Action Bar */}
@@ -188,6 +210,39 @@ export function ResultsStep({
           data={tailoredResume}
           fileName={`${tailoredResume.contact.fullName.replace(/\s+/g, "-")}-tailored-resume.pdf`}
         />
+      </div>
+
+      {/* Editable Location */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <MapPin className="h-4 w-4 shrink-0" />
+        {editingLocation ? (
+          <div className="flex items-center gap-2 flex-1">
+            <Input
+              autoFocus
+              value={locationDraft}
+              onChange={(e) => setLocationDraft(e.target.value)}
+              onKeyDown={handleLocationKeyDown}
+              onBlur={handleLocationSave}
+              placeholder="City, State/Country"
+              className="h-8 text-sm max-w-xs"
+            />
+            <Button size="sm" variant="ghost" onClick={handleLocationSave} className="h-8 px-2">
+              <Check className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setLocationDraft(tailoredResume.contact.location || "");
+              setEditingLocation(true);
+            }}
+            className="flex items-center gap-1.5 hover:text-foreground transition-colors group"
+          >
+            <span>{tailoredResume.contact.location || "No address set"}</span>
+            <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
