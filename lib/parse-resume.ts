@@ -1,22 +1,18 @@
 import mammoth from "mammoth";
-import { PDFParse } from "pdf-parse";
+import { extractText as extractPdfText } from "unpdf";
 
 /**
- * Extract text content from a PDF buffer using pdf-parse v2.
+ * Extract text content from a PDF buffer using unpdf (serverless-compatible).
  */
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  let parser: PDFParse | null = null;
   try {
-    parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const result = await parser.getText();
-    return result.text || "";
+    const { text } = await extractPdfText(new Uint8Array(buffer));
+    return Array.isArray(text) ? text.join("\n") : text || "";
   } catch (error) {
     console.error("PDF extraction error:", error);
     throw new Error(
       "Failed to extract text from PDF. Please try a DOCX file or paste your resume text directly."
     );
-  } finally {
-    await parser?.destroy();
   }
 }
 
