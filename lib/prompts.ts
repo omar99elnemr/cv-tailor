@@ -1,88 +1,104 @@
 // ── Resume Parsing Prompt ──
-export const RESUME_PARSE_PROMPT = `You are an expert resume parser. Your task is to extract ALL information from the following resume text and structure it into the requested JSON format.
+export const RESUME_PARSE_PROMPT = `You are a meticulous resume data extractor. Parse the following resume text into the requested JSON structure.
 
-RULES:
-- Extract every section accurately and completely
-- If a section/field is not present in the resume, use an empty string or empty array
-- For experience bullets, capture the full content of each bullet point
-- Preserve dates in their original format (e.g., "Jan 2023", "2023", "Present")
-- Group skills by category if they appear categorized; if not, create logical categories
-- Extract projects separately from work experience
-- Include all certifications, languages, and other sections you find
-- For the summary: if no explicit summary exists, leave it as an empty string
-- Contact info: extract name, email, phone, LinkedIn, GitHub, website, location
+EXTRACTION RULES:
+- Capture every single detail — names, titles, dates, bullets, skills, certifications, languages, projects
+- Preserve original wording in bullet points (do not rephrase or "improve" anything during extraction)
+- Keep dates exactly as written (e.g., "Jan 2023", "2023", "Present")
+- If skills are grouped by category in the resume, preserve those groupings; otherwise create sensible categories
+- Separate projects from work experience — projects are standalone efforts, not employment
+- If no explicit summary/objective exists, leave it as an empty string
+- Never skip, merge, or fabricate any entries
 
-IMPORTANT: Be thorough. Do not skip any information from the resume.`;
+Parse everything. Completeness is critical.`;
 
 // ── Job Description Analysis Prompt ──
-export const JOB_ANALYSIS_PROMPT = `You are an expert job description analyzer. Extract structured information from the following job posting text.
+export const JOB_ANALYSIS_PROMPT = `You are a senior technical recruiter analyzing a job posting. Extract a structured breakdown so a candidate can tailor their resume.
 
-RULES:
-- Identify the exact job title and company name
-- Extract ALL required qualifications (hard requirements, must-haves)
-- Extract ALL preferred/nice-to-have skills separately
-- List key responsibilities
-- Extract important ATS keywords: technical skills, tools, frameworks, methodologies, certifications, soft skills
-- Include both the full form and common abbreviations of technical terms (e.g., "Machine Learning" and "ML")
-- Be thorough — missing a keyword means the candidate might miss an ATS match
+EXTRACTION RULES:
+1. **Title & Company** — Identify the exact job title and hiring company.
+2. **Requirements** — List every stated "must-have" or required qualification. Include years of experience, specific degrees, clearances, or hard skills explicitly labeled as required.
+3. **Preferred Skills** — List nice-to-haves, bonus qualifications, and "preferred" items separately.
+4. **Responsibilities** — Capture the core duties and expectations for the role.
+5. **ATS Keywords** — This is the most important part. Extract every term a resume scanner would look for:
+   - Technical skills, programming languages, frameworks, libraries, platforms, tools
+   - Methodologies (Agile, Scrum, CI/CD, TDD, etc.)
+   - Certifications (AWS SAA, PMP, CPA, etc.)
+   - Domain terms (e.g., "fintech", "healthcare", "B2B SaaS")
+   - Soft skills only when the posting explicitly emphasizes them (e.g., "cross-functional collaboration")
+   - Include both the spelled-out form AND the abbreviation when applicable (e.g., "Kubernetes" and "K8s", "Machine Learning" and "ML")
+   - Do NOT invent keywords that aren't in or clearly implied by the posting
+
+Be precise. Missed keywords = missed ATS matches. Invented keywords = false confidence.
 
 Return the structured analysis.`;
 
 // ── Resume Tailoring Prompt ──
-export const RESUME_TAILOR_PROMPT = `You are an elite career coach and ATS optimization expert with 20+ years of experience helping candidates land interviews at top companies. Your task is to tailor a resume for a specific job posting to maximize the candidate's chances of:
-1. Passing ATS (Applicant Tracking System) keyword screening
-2. Impressing the hiring manager in the first 6-second scan
-3. Landing an interview
+export const RESUME_TAILOR_PROMPT = `You are a career strategist helping a real person land this specific job. Your goal: reshape their existing resume so it speaks directly to what the hiring team is looking for — while sounding like a human wrote it, not a bot.
 
-## CANDIDATE'S CURRENT RESUME (structured JSON):
+## CANDIDATE'S CURRENT RESUME:
 {resume}
 
 ## TARGET JOB DESCRIPTION:
 {jobDescription}
 
-## TAILORING RULES
+---
 
-### ⚠️ TRUTHFULNESS (NON-NEGOTIABLE)
-- NEVER fabricate, invent, or exaggerate experience, skills, certifications, or achievements
-- ONLY reframe, reorder, emphasize, and rephrase EXISTING information from the original resume
-- You may adjust wording to better match job language, but the underlying achievement MUST be real
-- If the candidate lacks a required skill, do NOT add it — flag it in missing keywords instead
+## YOUR APPROACH
 
-### 🎯 PROFESSIONAL SUMMARY
-- Rewrite the summary as a compelling 2-3 sentence pitch targeting THIS specific role
-- Include: the target job title, years of relevant experience, and 2-3 key matching skills
-- Mirror the job description's language and priorities
-- Make the reader immediately see this candidate as a strong fit
+### HONESTY FIRST
+- Work ONLY with what the candidate has actually done. Zero fabrication.
+- You may reword, reframe, and reorder — but the underlying facts must be real.
+- If the candidate lacks a required skill, do NOT invent it. Flag it in missing keywords instead.
 
-### 💼 EXPERIENCE SECTION
-- Reorder bullet points within each role: most relevant to the target job comes first
-- Rewrite bullets using strong Action Verb + specific Task + measurable Result (STAR method)
-- Quantify achievements with numbers, percentages, dollar amounts, or scale wherever possible
-- Use action verbs that appear in the job description (e.g., if JD says "optimize", use "optimized")
-- Expand relevant experience (3-5 bullets per role); condense less relevant experience (1-2 bullets)
-- Do NOT remove any job entries — just adjust emphasis
+### PROFESSIONAL SUMMARY (2-3 sentences)
+Write a punchy opening that positions this person for THIS role. Guidelines:
+- Lead with their strongest qualifier for the job (years of experience, domain match, standout skill)
+- Weave in 2-3 keywords from the job posting naturally — don't stuff them
+- Sound like a confident professional describing themselves to a peer, not like a template
+- AVOID these AI-sounding phrases: "Results-driven professional", "Highly motivated", "Passionate about", "Proven track record", "Leveraging", "Spearheaded", "Dynamic", "Innovative solutions", "Cutting-edge"
+- Good example: "Backend engineer with 5 years building payment systems in Go and Python. Most recently led the migration of a monolith serving 2M daily transactions to microservices at [Company]."
+- Bad example: "Results-driven software engineer with a proven track record of leveraging cutting-edge technologies to deliver innovative solutions."
 
-### 🛠️ SKILLS SECTION
-- Reorder skills: place most relevant to the target job first
-- Group skills into categories that align with job requirements
-- Include any required skills from the job posting that the candidate actually possesses
-- Keep irrelevant but valid skills (they show breadth)
+### EXPERIENCE BULLETS
+This is where the resume lives or dies. For each role:
+- Put the most relevant bullets first (relevant to the TARGET job)
+- Rewrite each bullet as: **what you did → how/with what → what happened**
+- Quantify where the original resume supports it (numbers, scale, outcomes). Don't invent metrics.
+- Match the job posting's terminology where it fits naturally (e.g., if the JD says "CI/CD pipelines", use that phrase instead of "deployment automation")
+- Keep sentences varied in structure — not every bullet should start with a past-tense verb
+- 3-5 bullets for relevant roles, 1-2 for less relevant ones
+- DO NOT remove any job entries
 
-### 🎓 EDUCATION & CERTIFICATIONS
-- Highlight relevant coursework, projects, or certifications that align with the role
-- Keep all entries — just adjust detail level based on relevance
+BULLET STYLE GUIDE — write like a human, not a resume robot:
+✓ "Cut API response times by 40% after profiling and rewriting the caching layer in Redis"
+✓ "Built the internal hiring dashboard from scratch — used by 30+ recruiters across 4 offices"
+✓ "Migrated the billing system from a legacy SOAP API to REST, eliminating ~15hrs/month of manual reconciliation"
+✗ "Spearheaded the development of a cutting-edge API optimization initiative, resulting in significant performance improvements"
+✗ "Leveraged advanced technologies to drive impactful business outcomes across cross-functional teams"
 
-### 📊 ATS OPTIMIZATION
-- Mirror exact keywords and phrases from the job description throughout the resume
-- Use both acronyms and full forms where appropriate (e.g., "Machine Learning (ML)")
-- Target 70-85% keyword match rate with the job posting
-- Place critical keywords in the summary and first few experience bullets (highest ATS weight)
+### SKILLS
+- Reorder so the most job-relevant skills come first in each category
+- Group logically (languages, frameworks, tools, platforms, etc.)
+- Keep any valid skills even if not in the JD — they show range
+
+### EDUCATION & CERTS
+- Highlight coursework or certifications that match the role
+- Keep everything; just adjust how much detail each entry gets
+
+### ATS OPTIMIZATION
+- Mirror exact phrases from the job posting where they naturally fit
+- Use both forms where appropriate: "Amazon Web Services (AWS)", "Machine Learning (ML)"
+- Place the most critical keywords in the summary and top experience bullets
+- Target 70-85% keyword coverage — don't force every keyword if it doesn't fit naturally
 
 ## OUTPUT
-Return the complete tailored resume in the exact JSON schema requested, plus an ATS score analysis with matched keywords, missing keywords, and improvement suggestions.`;
+Return the tailored resume in the exact JSON schema, plus an honest ATS score analysis with matched keywords, missing keywords, and practical suggestions.
+
+For the ATS score: be realistic. A 95% score should be rare. If the candidate is genuinely missing key qualifications, the score should reflect that. Useful feedback beats inflated numbers.`;
 
 // ── Cover Letter Generation Prompt ──
-export const COVER_LETTER_PROMPT = `You are an expert cover letter writer who crafts compelling, personalized letters that get candidates interviews.
+export const COVER_LETTER_PROMPT = `Write a cover letter for this candidate applying to this role. It should read like something an actual person sat down and wrote — not a template with blanks filled in.
 
 ## CANDIDATE'S RESUME:
 {resume}
@@ -90,31 +106,28 @@ export const COVER_LETTER_PROMPT = `You are an expert cover letter writer who cr
 ## TARGET JOB DESCRIPTION:
 {jobDescription}
 
-## INSTRUCTIONS
-Write a professional cover letter with exactly 3 paragraphs:
+## STRUCTURE (3 paragraphs, under 350 words total)
 
-**Paragraph 1 — Hook (2-3 sentences):**
-- Open with a specific, compelling connection to the company or role
-- Mention the exact position title and company name
-- Show genuine enthusiasm and understanding of their mission/needs
-- AVOID generic openings like "I am writing to express my interest"
+**Opening (2-3 sentences):**
+- Get to the point: what role, why you're a fit, and ideally one specific thing about the company that connects to your background
+- DO NOT open with "I am writing to express my interest" or "I was excited to see your posting" — these are instant tells
+- Good: "When I saw [Company] is building [specific thing from JD], it clicked — I've spent the last three years doing exactly that at [Current Company]."
 
-**Paragraph 2 — Evidence (3-4 sentences):**
-- Highlight 2-3 specific achievements from the candidate's experience
-- Each achievement should directly address a key requirement from the job posting
-- Use concrete numbers and measurable results
-- Connect each achievement to a stated need: "Your need for X aligns with my experience doing Y"
+**Body (3-4 sentences):**
+- Pick 2-3 achievements from the resume that directly answer the job's biggest needs
+- Use specific numbers and outcomes — not vague claims
+- Connect each one: "You need X — I did X at [Company], which resulted in Y"
+- Write in a natural voice. Contractions are fine. Short sentences are fine.
 
-**Paragraph 3 — Close (2-3 sentences):**
-- Reiterate fit and enthusiasm for the specific role
-- Include a forward-looking statement about contributing to the company
-- End with a confident, professional call to action
+**Close (2-3 sentences):**
+- Restate fit briefly, express genuine interest in the specific team/product/mission
+- End with a clear next step — "I'd welcome the chance to discuss how I can help [specific goal]"
+- Don't grovel or be overly formal
 
 ## RULES
-- Keep total length under 350 words
-- Use a professional but warm and confident tone
-- Reference specific details from the job posting and company
-- DO NOT repeat the resume verbatim — synthesize and narrate
-- DO NOT use clichés or filler phrases
-- Use the candidate's actual achievements only — never fabricate
-- Write in first person`;
+- First person, professional but human tone
+- Reference specifics from the JD — show you read it
+- Use the candidate's real achievements only
+- No clichés: "passionate", "leverage my skills", "proven track record", "hit the ground running", "in today's fast-paced environment"
+- No filler: every sentence should carry information or build a connection
+- Vary sentence length. Mix short punchy sentences with longer explanatory ones.`;
