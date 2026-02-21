@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdfjs-dist", "mammoth"],
+  serverExternalPackages: ["pdf-parse", "pdfjs-dist", "mammoth"],
   turbopack: {
     resolveAlias: {
       canvas: { browser: "./empty-module.js" },

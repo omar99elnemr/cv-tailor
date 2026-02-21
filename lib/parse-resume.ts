@@ -1,38 +1,22 @@
 import mammoth from "mammoth";
+import { PDFParse } from "pdf-parse";
 
 /**
- * Extract text content from a PDF buffer using pdfjs-dist directly.
+ * Extract text content from a PDF buffer using pdf-parse v2.
  */
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  let parser: PDFParse | null = null;
   try {
-    // Use pdfjs-dist legacy build directly – avoids pdf-parse wrapper issues
-    // with Next.js bundling (worker threads, canvas resolution, etc.)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
-
-    const data = new Uint8Array(buffer);
-    const doc = await pdfjs.getDocument({ data, useSystemFonts: true }).promise;
-
-    const textParts: string[] = [];
-    for (let i = 1; i <= doc.numPages; i++) {
-      const page = await doc.getPage(i);
-      const content = await page.getTextContent();
-      const pageText = content.items
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((item: any) => "str" in item)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((item: any) => item.str)
-        .join(" ");
-      textParts.push(pageText);
-    }
-
-    await doc.destroy();
-    return textParts.join("\n");
+    parser = new PDFParse({ data: new Uint8Array(buffer) });
+    const result = await parser.getText();
+    return result.text || "";
   } catch (error) {
     console.error("PDF extraction error:", error);
     throw new Error(
       "Failed to extract text from PDF. Please try a DOCX file or paste your resume text directly."
     );
+  } finally {
+    await parser?.destroy();
   }
 }
 
