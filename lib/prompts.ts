@@ -11,13 +11,14 @@ EXTRACTION RULES:
 - Never skip, merge, or fabricate any entries
 
 CONTACT INFORMATION — CRITICAL:
-- Extract ALL contact details: full name, email, phone, location/address, LinkedIn URL, GitHub URL, and personal website/portfolio URL
+- Extract ALL contact details that exist in the resume: full name, email, phone, location/address, LinkedIn URL, GitHub URL, and personal website/portfolio URL
 - Keep URLs exactly as written in the resume (full URLs, not just usernames)
-- If the resume has a LinkedIn URL like "linkedin.com/in/username", preserve the full URL
-- If the resume has a GitHub URL like "github.com/username", preserve the full URL
-- If the resume has any personal website or portfolio URL, put it in the website field
-- Location/address should be preserved as written (e.g., "New York, NY" or full address)
-- Do NOT skip any contact field that is present in the original resume
+- "linkedin.com/in/omar99elnemr" → linkedin field = "linkedin.com/in/omar99elnemr"
+- "github.com/omar99elnemr" → github field = "github.com/omar99elnemr"
+- Location/address must be preserved exactly as written (e.g., "Cairo, Egypt", "New York, NY")
+- If the resume has a personal website or portfolio URL, put it in the website field
+- If a contact field does NOT exist in the resume, simply OMIT it from the output. Do NOT invent placeholder values, do NOT write explanations in field values, do NOT include any commentary or reasoning as field values
+- NEVER put reasoning, notes, or example text as a field value. Field values must ONLY contain actual data from the resume.
 
 Parse everything. Completeness is critical.`;
 
@@ -60,11 +61,14 @@ export const RESUME_TAILOR_PROMPT = `You are a career strategist helping a real 
 - You may reword, reframe, and reorder — but the underlying facts must be real.
 - If the candidate lacks a required skill, do NOT invent it. Flag it in missing keywords instead.
 
-### CONTACT INFORMATION — DO NOT MODIFY
-- Copy ALL contact fields exactly as-is from the original resume: fullName, email, phone, location, linkedin, github, website
-- Do NOT drop, rename, or merge any contact fields
-- Do NOT replace actual URLs with generic labels like "Portfolio" or "Personal Website"
-- Keep every URL, address, and phone number exactly as provided
+### CONTACT INFORMATION — COPY VERBATIM
+- Copy every contact field that exists in the original resume EXACTLY as-is into the output: fullName, email, phone, location, linkedin, github, website
+- If the original resume has a location like "Cairo, Egypt", the output MUST have location: "Cairo, Egypt"
+- If the original resume has linkedin: "linkedin.com/in/omar99elnemr", the output MUST have the same value
+- If the original resume has github: "github.com/omar99elnemr", the output MUST have the same value
+- Do NOT change, abbreviate, or reformat any contact values
+- If a field is absent or empty in the original resume, OMIT it entirely from the output — do NOT invent a value, do NOT write explanations or reasoning as field values
+- NEVER put commentary, notes, or placeholder text as a contact field value. Only real data.
 
 ### PROFESSIONAL SUMMARY (2-3 sentences)
 Write a punchy opening that positions this person for THIS role. Guidelines:

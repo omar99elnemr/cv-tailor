@@ -3,12 +3,12 @@ import { z } from "zod";
 // ── Contact Information ──
 export const ContactInfoSchema = z.object({
   fullName: z.string().describe("The candidate's full name"),
-  email: z.string().optional().describe("Email address"),
-  phone: z.string().optional().describe("Phone number with country code"),
-  linkedin: z.string().optional().describe("LinkedIn profile URL or username"),
-  github: z.string().optional().describe("GitHub profile URL or username"),
-  website: z.string().optional().describe("Personal website or portfolio URL"),
-  location: z.string().optional().describe("City, State/Country"),
+  email: z.string().optional().describe("Email address. Only include if present in the resume."),
+  phone: z.string().optional().describe("Phone number with country code. Only include if present in the resume."),
+  linkedin: z.string().optional().describe("LinkedIn profile URL exactly as it appears in the resume (e.g. 'linkedin.com/in/johndoe'). Only include if present."),
+  github: z.string().optional().describe("GitHub profile URL exactly as it appears in the resume (e.g. 'github.com/johndoe'). Only include if present."),
+  website: z.string().optional().describe("Personal website URL exactly as it appears in the resume. OMIT this field entirely if the resume has no website. Never put explanations or placeholder text here."),
+  location: z.string().optional().describe("City and country/state exactly as written in the resume (e.g. 'Cairo, Egypt'). Only include if present."),
 });
 
 // ── Experience Entry ──

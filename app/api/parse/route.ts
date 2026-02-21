@@ -54,7 +54,19 @@ export async function POST(req: Request) {
       model,
       schema: ResumeDataSchema,
       prompt: `${RESUME_PARSE_PROMPT}\n\n--- RESUME TEXT ---\n${rawText}`,
+      system: "You are a data extractor. Output ONLY real data from the resume. For optional fields that don't exist in the resume, omit them entirely. NEVER write explanations, reasoning, examples, or commentary as field values. Every field value must be actual data extracted from the resume text.",
     });
+
+    // Sanitize contact fields: remove any AI-generated commentary that leaked into values
+    if (resume.contact) {
+      const suspiciousPatterns = /example|omit|Based on|instruction|empty string|if you have|field|schema|reasoning|Do NOT/i;
+      for (const key of ["website", "linkedin", "github", "location", "phone", "email"] as const) {
+        const val = resume.contact[key];
+        if (val && (suspiciousPatterns.test(val) || val.length > 200)) {
+          resume.contact[key] = undefined;
+        }
+      }
+    }
 
     return Response.json({ resume, rawText });
   } catch (error) {
