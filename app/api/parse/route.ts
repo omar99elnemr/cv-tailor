@@ -59,10 +59,10 @@ export async function POST(req: Request) {
 
     // Sanitize contact fields: remove any AI-generated commentary that leaked into values
     if (resume.contact) {
-      const suspiciousPatterns = /example|omit|Based on|instruction|empty string|if you have|field|schema|reasoning|Do NOT/i;
+      const suspiciousPatterns = /example|omit|Based on|instruction|empty string|if you have|field|schema|reasoning|Do NOT|placeholder|not provided|not present|not required|not included|none provided|removed by|per instructions|this field|this comment|JSON output|compliance|adherence/i;
       for (const key of ["website", "linkedin", "github", "location", "phone", "email"] as const) {
         const val = resume.contact[key];
-        if (val && (suspiciousPatterns.test(val) || val.length > 200)) {
+        if (val && (suspiciousPatterns.test(val) || val.length > 100)) {
           resume.contact[key] = undefined;
         }
       }

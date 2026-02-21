@@ -55,16 +55,10 @@ export async function POST(req: Request) {
       model,
       schema: tailorSchema,
       prompt: tailorPrompt,
-      system: `CRITICAL: The contact object in your output MUST contain these EXACT values from the input resume — copy them character-for-character:\n${JSON.stringify(resume.contact, null, 2)}\n\nDo NOT modify, omit, or add commentary to any contact field. If a field is missing from the input, omit it from the output. NEVER write explanations, reasoning, or placeholder text as field values.`,
     });
 
-    // Safety net: force original contact data through
-    tailoredData.resume.contact = {
-      ...tailoredData.resume.contact,
-      ...Object.fromEntries(
-        Object.entries(resume.contact).filter(([_, v]) => v !== undefined && v !== "")
-      ),
-    };
+    // Force original contact data — AI is not allowed to touch contact info at all
+    tailoredData.resume.contact = resume.contact;
 
     // Generate cover letter if requested (separate call for better quality)
     let coverLetter: string | undefined;
