@@ -64,6 +64,8 @@ export function ResultsStep({
   const [copied, setCopied] = useState(false);
   const [editingLocation, setEditingLocation] = useState(false);
   const [locationDraft, setLocationDraft] = useState("");
+  const [editingFileName, setEditingFileName] = useState(false);
+  const [fileNameDraft, setFileNameDraft] = useState("");
 
   const tailorResume = useCallback(async () => {
     setLoading(true);
@@ -181,6 +183,19 @@ export function ResultsStep({
 
   if (!tailoredResume) return null;
 
+  const defaultFileName = `${tailoredResume.contact.fullName.replace(/\s+/g, "-")}-tailored-resume`;
+
+  const handleFileNameSave = () => {
+    setEditingFileName(false);
+  };
+
+  const handleFileNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleFileNameSave();
+    if (e.key === "Escape") setEditingFileName(false);
+  };
+
+  const resolvedFileName = (fileNameDraft.trim() || defaultFileName) + ".pdf";
+
   const handleLocationSave = () => {
     const trimmed = locationDraft.trim();
     setTailoredResume({
@@ -206,10 +221,41 @@ export function ResultsStep({
           <RotateCcw className="h-4 w-4" />
           Start Over
         </Button>
-        <PDFDownloadButton
-          data={tailoredResume}
-          fileName={`${tailoredResume.contact.fullName.replace(/\s+/g, "-")}-tailored-resume.pdf`}
-        />
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {editingFileName ? (
+            <div className="flex items-center gap-1">
+              <Input
+                autoFocus
+                value={fileNameDraft}
+                onChange={(e) => setFileNameDraft(e.target.value)}
+                onKeyDown={handleFileNameKeyDown}
+                onBlur={handleFileNameSave}
+                placeholder={defaultFileName}
+                className="h-9 text-sm w-56"
+              />
+              <span className="text-sm text-muted-foreground">.pdf</span>
+              <Button size="sm" variant="ghost" onClick={handleFileNameSave} className="h-9 px-2">
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setFileNameDraft(fileNameDraft || defaultFileName);
+                setEditingFileName(true);
+              }}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+            >
+              <span>{resolvedFileName}</span>
+              <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          )}
+          <PDFDownloadButton
+            data={tailoredResume}
+            fileName={resolvedFileName}
+          />
+        </div>
       </div>
 
       {/* Editable Location */}
