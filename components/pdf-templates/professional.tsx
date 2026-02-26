@@ -158,6 +158,17 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "Helvetica-Bold",
   },
+  projectNameRow: {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    marginBottom: 1,
+  },
+  projectUrl: {
+    fontSize: 8.5,
+    color: "#2563eb",
+    marginLeft: 6,
+    textDecoration: "none",
+  },
   projectDesc: {
     fontSize: 9.5,
     color: colors.darkGray,
@@ -223,12 +234,13 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
     contactItems.push(<Text key="loc" style={styles.contactItem}>{contact.location}</Text>);
   }
   if (contact.linkedin) {
-    const url = contact.linkedin.startsWith("http")
-      ? contact.linkedin
-      : `https://linkedin.com/in/${contact.linkedin}`;
-    const displayText = contact.linkedin.startsWith("http")
-      ? contact.linkedin.replace(/^https?:\/\//, "").replace(/\/$/, "")
-      : `linkedin.com/in/${contact.linkedin}`;
+    const raw = contact.linkedin;
+    const url = raw.startsWith("http")
+      ? raw
+      : /^(www\.)?linkedin\.com\//i.test(raw)
+      ? `https://${raw}`
+      : `https://linkedin.com/in/${raw}`;
+    const displayText = url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
     contactItems.push(
       <Link key="li" style={styles.contactLink} src={url}>
         {displayText}
@@ -236,12 +248,13 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
     );
   }
   if (contact.github) {
-    const url = contact.github.startsWith("http")
-      ? contact.github
-      : `https://github.com/${contact.github}`;
-    const displayText = contact.github.startsWith("http")
-      ? contact.github.replace(/^https?:\/\//, "").replace(/\/$/, "")
-      : `github.com/${contact.github}`;
+    const raw = contact.github;
+    const url = raw.startsWith("http")
+      ? raw
+      : /^(www\.)?github\.com\//i.test(raw)
+      ? `https://${raw}`
+      : `https://github.com/${raw}`;
+    const displayText = url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
     contactItems.push(
       <Link key="gh" style={styles.contactLink} src={url}>
         {displayText}
@@ -351,10 +364,17 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
             <SectionTitle>Projects</SectionTitle>
             {projects.map((proj, i) => (
               <View key={i} style={styles.entry} wrap={false}>
-                <Text style={styles.projectName}>
-                  {proj.name}
-                  {proj.url ? " " : ""}
-                </Text>
+                <View style={styles.projectNameRow}>
+                  <Text style={styles.projectName}>{proj.name}</Text>
+                  {proj.url && (
+                    <Link
+                      style={styles.projectUrl}
+                      src={proj.url.startsWith("http") ? proj.url : `https://${proj.url}`}
+                    >
+                      {proj.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                    </Link>
+                  )}
+                </View>
                 <Text style={styles.projectDesc}>{proj.description}</Text>
                 {proj.technologies && proj.technologies.length > 0 && (
                   <Text style={styles.projectTech}>
