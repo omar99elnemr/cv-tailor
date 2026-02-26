@@ -20,6 +20,27 @@ CONTACT INFORMATION — CRITICAL:
 - If a contact field does NOT exist in the resume, simply OMIT it from the output. Do NOT invent placeholder values, do NOT write explanations in field values, do NOT include any commentary or reasoning as field values
 - NEVER put reasoning, notes, or example text as a field value. Field values must ONLY contain actual data from the resume.
 
+HYPERLINKS — USE THE APPENDED LIST AS AUTHORITATIVE SOURCE:
+- If the resume text ends with a "--- HYPERLINKS FOUND IN DOCUMENT ---" section, those URLs are the ground truth for all links in the document
+- Use those URLs verbatim for linkedin, github, website, and project URL fields — do NOT guess or reconstruct URLs from visible text alone
+- If a URL in the hyperlink list matches a contact field (linkedin, github, personal site), use that exact URL
+- If no hyperlink list is present and a URL is not visible in the text, OMIT the field entirely — do not guess
+
+HANDLING MESSY OR MULTI-COLUMN TEXT:
+- Resume text extracted from complex PDF/DOCX layouts may be garbled: columns interleaved, headers merged with content, random line breaks mid-sentence
+- Use context clues (dates, company names, job titles, section keywords like "Experience", "Education", "Skills") to reconstruct the correct structure
+- Common section headers to look for: Summary, Objective, Experience, Work History, Education, Skills, Projects, Certifications, Languages, Awards, Publications
+- If text looks like two columns were merged (e.g., a skill and a date appear on the same line with no logical connection), separate them into their correct sections
+- When in doubt about which section a piece of text belongs to, use the surrounding context to decide — never discard content
+
+ANTI-HALLUCINATION RULES — STRICTLY ENFORCED:
+- If you cannot find a piece of data in the text, do NOT guess. Leave the field empty or omit it entirely.
+- NEVER invent: email addresses, phone numbers, URLs, company names, job titles, dates, or metrics
+- NEVER infer: "probably works at X", "likely has skill Y", "URL is probably linkedin.com/in/..."
+- If the only LinkedIn info in the text is the word "LinkedIn" with no URL, OMIT the linkedin field
+- If you see partial data (e.g., only a username, not a full URL), use only what is explicitly written
+- Every bullet point must be traceable to actual text in the resume — do not embellish or add context
+
 Parse everything. Completeness is critical.`;
 
 // ── Job Description Analysis Prompt ──
@@ -52,6 +73,9 @@ export const RESUME_TAILOR_PROMPT = `You are a career strategist helping a real 
 ## TARGET JOB DESCRIPTION:
 {jobDescription}
 
+## ORIGINAL RESUME TEXT (source of truth for all facts):
+{rawText}
+
 ---
 
 ## YOUR APPROACH
@@ -60,6 +84,7 @@ export const RESUME_TAILOR_PROMPT = `You are a career strategist helping a real 
 - Work ONLY with what the candidate has actually done. Zero fabrication.
 - You may reword, reframe, and reorder — but the underlying facts must be real.
 - If the candidate lacks a required skill, do NOT invent it. Flag it in missing keywords instead.
+- Cross-check every fact against the ORIGINAL RESUME TEXT above. If something in the structured resume is not traceable to the original text, trust the original text.
 
 ### CONTACT INFORMATION — COPY VERBATIM
 - Copy every contact field that exists in the original resume EXACTLY as-is into the output: fullName, email, phone, location, linkedin, github, website

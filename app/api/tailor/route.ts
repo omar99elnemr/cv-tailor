@@ -26,10 +26,12 @@ export async function POST(req: Request) {
     const {
       resume,
       jobDescription,
+      rawText = "",
       options = { coverLetter: true },
     } = body as {
       resume: ResumeData;
       jobDescription: string;
+      rawText?: string;
       options?: { coverLetter?: boolean };
     };
 
@@ -46,7 +48,9 @@ export async function POST(req: Request) {
     const tailorPrompt = RESUME_TAILOR_PROMPT.replace(
       "{resume}",
       JSON.stringify(resume, null, 2)
-    ).replace("{jobDescription}", jobDescription);
+    )
+      .replace("{jobDescription}", jobDescription)
+      .replace("{rawText}", rawText || "(original resume text not available)");
 
     // Generate tailored resume + ATS score in one call
     const tailorSchema = TailoredResultSchema.omit({ coverLetter: true });

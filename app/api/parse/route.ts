@@ -3,8 +3,75 @@ import { getModel, getModelConfig } from "@/lib/ai";
 import { extractText } from "@/lib/parse-resume";
 import { ResumeDataSchema } from "@/lib/schemas";
 import { RESUME_PARSE_PROMPT } from "@/lib/prompts";
+import type { ResumeData } from "@/lib/schemas";
 
 export const maxDuration = 60;
+
+const SUSPICIOUS_PATTERNS =
+  /example|omit|Based on|instruction|empty string|if you have|field|schema|reasoning|Do NOT|placeholder|not provided|not present|not required|not included|none provided|removed by|per instructions|this field|this comment|JSON output|compliance|adherence|cannot be determined|not mentioned|not specified|not found|no .* provided|hallucin/i;
+
+const MAX_CONTACT_FIELD_LENGTH = 200;
+
+/**
+ * Validate parsed resume data against hallucination patterns.
+ * Logs warnings for suspicious fields and removes items that match
+ * hallucination patterns.
+ */
+function validateResumeData(resume: ResumeData, rawText: string): void {
+  const lowerRaw = rawText.toLowerCase();
+
+  // Warn about experience companies not found in raw text
+  for (const exp of resume.experience) {
+    if (
+      exp.company &&
+      !lowerRaw.includes(exp.company.toLowerCase()) &&
+      exp.company.length > 2
+    ) {
+      console.warn(
+        `[validate] Company not found in raw text: "${exp.company}"`
+      );
+    }
+  }
+
+  // Filter skills that match hallucination patterns
+  resume.skills = resume.skills
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (SUSPICIOUS_PATTERNS.test(item)) {
+          console.warn(`[validate] Removing suspicious skill: "${item}"`);
+          return false;
+        }
+        return true;
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  // Filter experience bullets that match hallucination patterns
+  resume.experience = resume.experience.map((exp) => ({
+    ...exp,
+    bullets: exp.bullets.filter((bullet) => {
+      if (SUSPICIOUS_PATTERNS.test(bullet)) {
+        console.warn(`[validate] Removing suspicious bullet: "${bullet}"`);
+        return false;
+      }
+      return true;
+    }),
+  }));
+
+  // Filter project descriptions that match hallucination patterns
+  if (resume.projects) {
+    resume.projects = resume.projects.filter((project) => {
+      if (SUSPICIOUS_PATTERNS.test(project.description)) {
+        console.warn(
+          `[validate] Removing suspicious project: "${project.name}"`
+        );
+        return false;
+      }
+      return true;
+    });
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -59,14 +126,16 @@ export async function POST(req: Request) {
 
     // Sanitize contact fields: remove any AI-generated commentary that leaked into values
     if (resume.contact) {
-      const suspiciousPatterns = /example|omit|Based on|instruction|empty string|if you have|field|schema|reasoning|Do NOT|placeholder|not provided|not present|not required|not included|none provided|removed by|per instructions|this field|this comment|JSON output|compliance|adherence/i;
       for (const key of ["website", "linkedin", "github", "location", "phone", "email"] as const) {
         const val = resume.contact[key];
-        if (val && (suspiciousPatterns.test(val) || val.length > 100)) {
+        if (val && (SUSPICIOUS_PATTERNS.test(val) || val.length > MAX_CONTACT_FIELD_LENGTH)) {
           resume.contact[key] = undefined;
         }
       }
     }
+
+    // Validate all fields against hallucination patterns
+    validateResumeData(resume, rawText);
 
     return Response.json({ resume, rawText });
   } catch (error) {
