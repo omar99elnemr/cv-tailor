@@ -53,6 +53,17 @@ export const ProjectSchema = z.object({
   url: z.string().optional().describe("Project URL or repository link. OMIT entirely if not present in the resume — do NOT guess or construct a URL."),
 });
 
+// ── Certification Entry ──
+export const CertificationSchema = z.object({
+  name: z.string().describe("Certification name — ONLY as written in the resume"),
+  url: z
+    .string()
+    .optional()
+    .describe(
+      "Verification or badge URL for this certification (e.g., Credly link). OMIT if not present in the resume — do NOT guess or construct a URL."
+    ),
+});
+
 // ── Language Entry ──
 export const LanguageEntrySchema = z.object({
   language: z.string().describe("Language name"),
@@ -83,9 +94,11 @@ export const ResumeDataSchema = z.object({
     .optional()
     .describe("Notable projects. OMIT entirely if no projects section exists in the resume."),
   certifications: z
-    .array(z.string())
+    .array(CertificationSchema)
     .optional()
-    .describe("Professional certifications. OMIT entirely if not present in the resume."),
+    .describe(
+      "Professional certifications with optional verification URLs. OMIT entirely if not present in the resume."
+    ),
   languages: z
     .array(LanguageEntrySchema)
     .optional()
@@ -147,6 +160,7 @@ export type Experience = z.infer<typeof ExperienceSchema>;
 export type Education = z.infer<typeof EducationSchema>;
 export type SkillCategory = z.infer<typeof SkillCategorySchema>;
 export type Project = z.infer<typeof ProjectSchema>;
+export type Certification = z.infer<typeof CertificationSchema>;
 export type LanguageEntry = z.infer<typeof LanguageEntrySchema>;
 export type ResumeData = z.infer<typeof ResumeDataSchema>;
 export type JobDetails = z.infer<typeof JobDetailsSchema>;

@@ -213,7 +213,18 @@ export function ResumePreview({ data }: { data: ResumeData }) {
             {certifications.map((cert, i) => (
               <li key={i} className="flex gap-2 text-[12.5px]">
                 <span className="text-muted-foreground shrink-0">•</span>
-                <span>{cert}</span>
+                {cert.url ? (
+                  <a
+                    href={cert.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    {cert.name}
+                  </a>
+                ) : (
+                  <span>{cert.name}</span>
+                )}
               </li>
             ))}
           </ul>

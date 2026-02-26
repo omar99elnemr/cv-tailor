@@ -45,12 +45,14 @@ export async function POST(req: Request) {
     const model = getModel(modelId, apiKey);
 
     // Build the tailoring prompt
+    const experienceCount = resume.experience?.length ?? 0;
     const tailorPrompt = RESUME_TAILOR_PROMPT.replace(
       "{resume}",
       JSON.stringify(resume, null, 2)
     )
       .replace("{jobDescription}", jobDescription)
-      .replace("{rawText}", rawText || "(original resume text not available)");
+      .replace("{rawText}", rawText || "(original resume text not available)")
+      .replace("{experienceCount}", String(experienceCount));
 
     // Generate tailored resume + ATS score in one call
     const tailorSchema = TailoredResultSchema.omit({ coverLetter: true });
@@ -63,6 +65,24 @@ export async function POST(req: Request) {
 
     // Force original contact data — AI is not allowed to touch contact info at all
     tailoredData.resume.contact = resume.contact;
+
+    // Restore any experience entries the AI may have dropped
+    if (resume.experience && resume.experience.length > 0) {
+      const tailoredLower = new Set(
+        (tailoredData.resume.experience ?? []).map((e) => e.company.toLowerCase().trim())
+      );
+      for (const origExp of resume.experience) {
+        if (!tailoredLower.has(origExp.company.toLowerCase().trim())) {
+          if (!tailoredData.resume.experience) tailoredData.resume.experience = [];
+          tailoredData.resume.experience.push(origExp);
+        }
+      }
+    }
+
+    // Preserve original certifications verbatim to retain verification URLs and exact wording
+    if (resume.certifications && resume.certifications.length > 0) {
+      tailoredData.resume.certifications = resume.certifications;
+    }
 
     // Generate cover letter if requested (separate call for better quality)
     let coverLetter: string | undefined;

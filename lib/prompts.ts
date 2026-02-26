@@ -22,8 +22,9 @@ CONTACT INFORMATION — CRITICAL:
 
 HYPERLINKS — USE THE APPENDED LIST AS AUTHORITATIVE SOURCE:
 - If the resume text ends with a "--- HYPERLINKS FOUND IN DOCUMENT ---" section, those URLs are the ground truth for all links in the document
-- Use those URLs verbatim for linkedin, github, website, and project URL fields — do NOT guess or reconstruct URLs from visible text alone
+- Use those URLs verbatim for linkedin, github, website, project URL fields, and certification URL fields — do NOT guess or reconstruct URLs from visible text alone
 - If a URL in the hyperlink list matches a contact field (linkedin, github, personal site), use that exact URL
+- If a URL in the hyperlink list appears near or corresponds to a certification name (e.g., a Credly link, badge URL, or certificate verification link), use it as the url field for that certification entry
 - If no hyperlink list is present and a URL is not visible in the text, OMIT the field entirely — do not guess
 
 HANDLING MESSY OR MULTI-COLUMN TEXT:
@@ -106,13 +107,16 @@ Write a punchy opening that positions this person for THIS role. Guidelines:
 
 ### EXPERIENCE BULLETS
 This is where the resume lives or dies. For each role:
+
+**⚠️ CRITICAL — PRESERVE ALL {experienceCount} EXPERIENCE ENTRIES: You MUST include every single work experience entry from the original resume in your output. Do NOT drop, merge, or omit any job entry, no matter how irrelevant it seems. Omitting even one entry is a critical failure.**
+
 - Put the most relevant bullets first (relevant to the TARGET job)
 - Rewrite each bullet as: **what you did → how/with what → what happened**
 - Quantify where the original resume supports it (numbers, scale, outcomes). Don't invent metrics.
 - Match the job posting's terminology where it fits naturally (e.g., if the JD says "CI/CD pipelines", use that phrase instead of "deployment automation")
 - Keep sentences varied in structure — not every bullet should start with a past-tense verb
 - 3-5 bullets for relevant roles, 1-2 for less relevant ones
-- DO NOT remove any job entries
+- **EVERY role must appear in the output — reduce bullets for less relevant roles, but never remove the role itself**
 
 BULLET STYLE GUIDE — write like a human, not a resume robot:
 ✓ "Cut API response times by 40% after profiling and rewriting the caching layer in Redis"
@@ -129,6 +133,7 @@ BULLET STYLE GUIDE — write like a human, not a resume robot:
 ### EDUCATION & CERTS
 - Highlight coursework or certifications that match the role
 - Keep everything; just adjust how much detail each entry gets
+- **Preserve certification URL fields exactly as they appear in the original resume — do NOT remove or alter any url values on certifications**
 
 ### ATS OPTIMIZATION
 - Mirror exact phrases from the job posting where they naturally fit
