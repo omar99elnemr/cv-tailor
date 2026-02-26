@@ -90,7 +90,9 @@ export async function POST(req: Request) {
       const coverPrompt = COVER_LETTER_PROMPT.replace(
         "{resume}",
         JSON.stringify(tailoredData.resume, null, 2)
-      ).replace("{jobDescription}", jobDescription);
+      )
+        .replace("{jobDescription}", jobDescription)
+        .replace("{rawText}", rawText || "(original resume text not available)");
 
       const { text } = await generateText({
         model,

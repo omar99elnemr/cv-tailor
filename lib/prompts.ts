@@ -155,6 +155,9 @@ export const COVER_LETTER_PROMPT = `Write a cover letter for this candidate appl
 ## TARGET JOB DESCRIPTION:
 {jobDescription}
 
+## ORIGINAL RESUME TEXT (use this as ground truth — only reference real achievements found here):
+{rawText}
+
 ## STRUCTURE (3 paragraphs, under 350 words total)
 
 **Opening (2-3 sentences):**

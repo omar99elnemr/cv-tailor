@@ -1,5 +1,5 @@
 import mammoth from "mammoth";
-import { extractText as extractPdfText } from "unpdf";
+import { extractText as extractPdfText, extractLinks as extractPdfLinks } from "unpdf";
 
 /**
  * Extract hyperlinks from a DOCX buffer by converting to HTML and parsing anchor tags.
@@ -54,12 +54,21 @@ function normalizeExtractedText(text: string, links: string[]): string {
 
 /**
  * Extract text content from a PDF buffer using unpdf (serverless-compatible).
+ * Also extracts hyperlink annotations and appends them as a reference section.
  */
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    const { text } = await extractPdfText(new Uint8Array(buffer));
+    const uint8 = new Uint8Array(buffer);
+    const [{ text }, { links }] = await Promise.all([
+      extractPdfText(uint8),
+      extractPdfLinks(uint8).catch((err) => {
+        console.warn("PDF link extraction failed (annotations may be unavailable):", err);
+        return { links: [] as string[], totalPages: 0 };
+      }),
+    ]);
     const rawText = Array.isArray(text) ? text.join("\n") : text || "";
-    return normalizeExtractedText(rawText, []);
+    const uniqueLinks = [...new Set(links.filter(Boolean))];
+    return normalizeExtractedText(rawText, uniqueLinks);
   } catch (error) {
     console.error("PDF extraction error:", error);
     throw new Error(
