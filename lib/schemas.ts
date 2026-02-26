@@ -13,27 +13,27 @@ export const ContactInfoSchema = z.object({
 
 // ── Experience Entry ──
 export const ExperienceSchema = z.object({
-  title: z.string().describe("Job title"),
-  company: z.string().describe("Company or organization name"),
-  location: z.string().optional().describe("Job location"),
-  startDate: z.string().describe("Start date (e.g., 'Jan 2023' or '2023')"),
-  endDate: z.string().describe("End date (e.g., 'Present' or 'Dec 2024')"),
+  title: z.string().describe("Job title — ONLY as written in the resume"),
+  company: z.string().describe("Company or organization name — ONLY as written in the resume"),
+  location: z.string().optional().describe("Job location. OMIT entirely if not present in the resume."),
+  startDate: z.string().describe("Start date (e.g., 'Jan 2023' or '2023') — ONLY as written"),
+  endDate: z.string().describe("End date (e.g., 'Present' or 'Dec 2024') — ONLY as written"),
   bullets: z
     .array(z.string())
-    .describe("Achievement/responsibility bullet points"),
+    .describe("Achievement/responsibility bullet points — copy verbatim from the resume, do NOT rephrase or invent"),
 });
 
 // ── Education Entry ──
 export const EducationSchema = z.object({
-  degree: z.string().describe("Degree name (e.g., 'BSc Computer Science')"),
-  institution: z.string().describe("University or school name"),
-  location: z.string().optional().describe("Institution location"),
-  startDate: z.string().optional().describe("Start date"),
-  endDate: z.string().describe("End date or expected graduation"),
+  degree: z.string().describe("Degree name (e.g., 'BSc Computer Science') — ONLY as written in the resume"),
+  institution: z.string().describe("University or school name — ONLY as written in the resume"),
+  location: z.string().optional().describe("Institution location. OMIT entirely if not present in the resume."),
+  startDate: z.string().optional().describe("Start date. OMIT if not present."),
+  endDate: z.string().describe("End date or expected graduation — ONLY as written"),
   details: z
     .array(z.string())
     .optional()
-    .describe("Relevant coursework, honors, GPA, activities"),
+    .describe("Relevant coursework, honors, GPA, activities. OMIT entirely if not present in the resume."),
 });
 
 // ── Skill Category ──
@@ -44,13 +44,13 @@ export const SkillCategorySchema = z.object({
 
 // ── Project Entry ──
 export const ProjectSchema = z.object({
-  name: z.string().describe("Project name"),
-  description: z.string().describe("Brief project description and impact"),
+  name: z.string().describe("Project name — ONLY as written in the resume"),
+  description: z.string().describe("Brief project description and impact — copy from the resume, do NOT invent details"),
   technologies: z
     .array(z.string())
     .optional()
-    .describe("Technologies/tools used"),
-  url: z.string().optional().describe("Project URL or repository link"),
+    .describe("Technologies/tools used. OMIT entirely if not listed in the resume."),
+  url: z.string().optional().describe("Project URL or repository link. OMIT entirely if not present in the resume — do NOT guess or construct a URL."),
 });
 
 // ── Language Entry ──
@@ -67,29 +67,29 @@ export const ResumeDataSchema = z.object({
   summary: z
     .string()
     .describe(
-      "Professional summary or objective statement (2-3 sentences)"
+      "Professional summary or objective statement (2-3 sentences). Use empty string if not present — do NOT generate a summary."
     ),
   experience: z
     .array(ExperienceSchema)
-    .describe("Work experience entries, most recent first"),
+    .describe("Work experience entries, most recent first. ONLY include entries that appear in the resume."),
   education: z
     .array(EducationSchema)
-    .describe("Education entries, most recent first"),
+    .describe("Education entries, most recent first. ONLY include entries that appear in the resume."),
   skills: z
     .array(SkillCategorySchema)
-    .describe("Skills grouped by category"),
+    .describe("Skills grouped by category. ONLY include skills explicitly listed in the resume."),
   projects: z
     .array(ProjectSchema)
     .optional()
-    .describe("Notable projects"),
+    .describe("Notable projects. OMIT entirely if no projects section exists in the resume."),
   certifications: z
     .array(z.string())
     .optional()
-    .describe("Professional certifications"),
+    .describe("Professional certifications. OMIT entirely if not present in the resume."),
   languages: z
     .array(LanguageEntrySchema)
     .optional()
-    .describe("Spoken/written languages"),
+    .describe("Spoken/written languages. OMIT entirely if not listed in the resume."),
 });
 
 // ── Job Description Details ──

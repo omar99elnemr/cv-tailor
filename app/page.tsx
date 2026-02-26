@@ -21,7 +21,7 @@ const STEPS = [
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(0);
   const [resume, setResume] = useState<ResumeData | null>(null);
-  const [, setRawResumeText] = useState<string>("");
+  const [rawResumeText, setRawResumeText] = useState<string>("");
   const [jobDescription, setJobDescription] = useState<string>("");
   const [tailorOptions, setTailorOptions] = useState({ coverLetter: true });
   const { settings, saveSettings, currentModel } = useModelSettings();
@@ -110,6 +110,7 @@ export default function Home() {
               <ResultsStep
                 resume={resume}
                 jobDescription={jobDescription}
+                rawText={rawResumeText}
                 options={tailorOptions}
                 modelSettings={settings}
                 onStartOver={handleStartOver}

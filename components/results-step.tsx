@@ -43,6 +43,7 @@ import type { ModelSettings } from "@/components/settings-dialog";
 interface ResultsStepProps {
   resume: ResumeData;
   jobDescription: string;
+  rawText: string;
   options: { coverLetter: boolean };
   modelSettings: ModelSettings;
   onStartOver: () => void;
@@ -51,6 +52,7 @@ interface ResultsStepProps {
 export function ResultsStep({
   resume,
   jobDescription,
+  rawText,
   options,
   modelSettings,
   onStartOver,
@@ -101,6 +103,7 @@ export function ResultsStep({
         body: JSON.stringify({
           resume,
           jobDescription,
+          rawText,
           options: { coverLetter: options.coverLetter },
         }),
       });
@@ -122,7 +125,7 @@ export function ResultsStep({
       clearInterval(interval);
       setLoading(false);
     }
-  }, [resume, jobDescription, options, modelSettings]);
+  }, [resume, jobDescription, rawText, options, modelSettings]);
 
   useEffect(() => {
     tailorResume();
