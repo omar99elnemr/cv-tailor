@@ -370,9 +370,18 @@ export function ProfessionalTemplate({ data }: { data: ResumeData }) {
         {certifications && certifications.length > 0 && (
           <View>
             <SectionTitle>Certifications</SectionTitle>
-            {certifications.map((cert, i) => (
-              <BulletPoint key={i} text={cert} />
-            ))}
+            {certifications.map((cert, i) =>
+              cert.url ? (
+                <View key={i} style={styles.bullet}>
+                  <Text style={styles.bulletDot}>•</Text>
+                  <Link style={[styles.bulletText, { color: colors.link }]} src={cert.url}>
+                    {cert.name}
+                  </Link>
+                </View>
+              ) : (
+                <BulletPoint key={i} text={cert.name} />
+              )
+            )}
           </View>
         )}
 
